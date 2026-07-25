@@ -947,6 +947,13 @@ bool ThreadSignalHandler::EnqueueSignal(const siginfo_t &info) {
   return TestAndSetNotify();
 }
 
+// Report whether LAME must defer to the Caladan scheduler for rseq fixup.
+extern "C" bool needs_fixup(thread_t *th) {
+  assert(th->junction_thread);
+  Thread &myth = Thread::fromCaladanThread(th);
+  return myth.get_rseq().needs_fixup();
+}
+
 // Called by the Caladan scheduler when a Junction thread is being scheduled.
 extern "C" void on_sched(thread_t *th) {
   assert(th->junction_thread);

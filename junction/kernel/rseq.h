@@ -27,6 +27,14 @@ class RseqState {
   explicit operator bool() const { return user_rs_; }
   [[nodiscard]] struct rseq *get_rseq() const { return user_rs_; }
 
+  [[nodiscard]] bool needs_fixup() const {
+    if (!user_rs_) return false;
+
+    uint32_t affinity = get_current_affinity();
+    return user_rs_->rseq_cs || user_rs_->cpu_id_start != affinity ||
+           user_rs_->cpu_id != affinity || user_rs_->mm_cid != affinity;
+  }
+
   void reset() {
     if (!user_rs_) return;
     user_rs_->cpu_id_start = user_rs_->mm_cid = 0;
