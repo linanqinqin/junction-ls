@@ -71,8 +71,7 @@ jobs:
             lib/caladan/dpdk/build
             lib/caladan/rdma-core/build
             lib/caladan/deps/pcm/build
-            lib/.caladan_installed_ver
-          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan-${{ hashFiles('lib/patches/caladan/*') }}
+          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan
 
       - uses: actions/cache@v4
         name: Retrieve cached python venv
@@ -164,8 +163,7 @@ jobs:
             lib/caladan/dpdk/build
             lib/caladan/rdma-core/build
             lib/caladan/deps/pcm/build
-            lib/.caladan_installed_ver
-          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan-${{ hashFiles('lib/patches/caladan/*') }}
+          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan
 
       - uses: actions/cache@v4
         name: Retrieve cached python venv
@@ -258,8 +256,7 @@ jobs:
             lib/caladan/dpdk/build
             lib/caladan/rdma-core/build
             lib/caladan/deps/pcm/build
-            lib/.caladan_installed_ver
-          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan-${{ hashFiles('lib/patches/caladan/*') }}
+          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan
 
       - uses: actions/cache@v4
         name: Retrieve cached python venv
@@ -362,8 +359,7 @@ jobs:
             lib/caladan/dpdk/build
             lib/caladan/rdma-core/build
             lib/caladan/deps/pcm/build
-            lib/.caladan_installed_ver
-          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan-${{ hashFiles('lib/patches/caladan/*') }}
+          key: ${{ runner.os }}-build-${{ env.caladan_commit }}-caladan
 
       - uses: actions/cache@v4
         name: Retrieve cached python venv
