@@ -271,6 +271,13 @@ class Thread {
     // Try to find the kthread hosting this thread.
     // cur_kthread is updated with the scheduler lock held, and is set to NCPU
     // when it is scheduled out.
+    /* linanqinqin */
+    // Multi-thread LAME bundles also intentionally
+    // leave it at NCPU: a directed kick could otherwise reach a different
+    // active bundle member. LAME pins a member after observing its pending
+    // interrupt, deferring delivery until that thread reaches a Junction
+    // syscall or yield boundary.
+    /* end */
     unsigned int kthread = access_once(th->cur_kthread);
     if (kthread < NCPU && SignalIfOwned(ks[kthread], th)) return;
 
