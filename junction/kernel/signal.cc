@@ -218,7 +218,9 @@ void UintrFinishYield(u_sigframe *uintr_frame, thread_t *th, void *xsave_buf,
   stack_frame.GetFrame().AttachXstate(xsave_buf);
 
   // Set up the proper unwinder.
-  if (!th->junction_thread) {
+  if (!th->junction_thread || ACCESS_ONCE(th->lame_xstate_pending)) {
+    // Resume a LAME xstate-restoration continuation directly. Delivering a
+    // signal first could expose the transitional xstate captured by UINTR.
     stack_frame.MakeUnwinder(th->tf);
   } else {
     Thread &myth = mythread();
@@ -365,7 +367,8 @@ extern "C" __nofp void uintr_entry(u_sigframe *uintr_frame) {
 
   buf_sz = GetXsaveAreaSize(in_use_xfeatures);
 
-  if (th->junction_thread && uintr_frame->uirrv == SIGURG - 1) {
+  if (th->junction_thread && uintr_frame->uirrv == SIGURG - 1 &&
+      !ACCESS_ONCE(th->lame_xstate_pending)) {
     if (th->in_syscall) {
       th->xsave_area_in_use = was_xsave_area_used;
       return;
@@ -449,7 +452,12 @@ extern "C" void caladan_signal_handler(int signo, siginfo_t *info,
 
   uint64_t rsp = sigframe.GetRsp() - kRedzoneSize;
 
-  if (IsJunctionThread()) {
+  if (IsJunctionThread() && ACCESS_ONCE(th->lame_xstate_pending)) {
+    // The interrupted LAME continuation must finish xrstor before Junction
+    // can expose this frame to an application signal handler.
+    rsp = mythread().get_syscall_stack_rsp();
+    sigframe.CloneTo(&rsp).MakeUnwinder(out_tf);
+  } else if (IsJunctionThread()) {
     Thread &myth = Thread::fromCaladanThread(th);
 
     FaultStatus fstatus = GetFaultStatus(myth, rsp, sigframe.GetRip());
