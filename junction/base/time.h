@@ -16,6 +16,10 @@ namespace junction {
 inline constexpr uint64_t kMilliseconds = 1000;
 inline constexpr uint64_t kSeconds = 1000000;
 
+// Guest-visible times() tick rate advertised via AT_CLKTCK.
+// Matches Junction's microsecond Duration accounting (1 tick = 1 us).
+inline constexpr long kClockTicksPerSecond = static_cast<long>(kSeconds);
+
 namespace detail {
 
 // Microtime returns microseconds since the launch of the runtime.

@@ -14,6 +14,7 @@ extern "C" {
 #include "junction/base/arch.h"
 #include "junction/base/io.h"
 #include "junction/base/string.h"
+#include "junction/base/time.h"
 #include "junction/bindings/log.h"
 #include "junction/fs/junction_file.h"
 #include "junction/junction.h"
@@ -59,8 +60,8 @@ void SetupAuxVec(std::array<Elf64_auxv_t, kNumAuxVectors> *vec,
 
   std::get<0>(*vec) = MakeAuxVec(AT_HWCAP, info.edx);
   std::get<1>(*vec) = MakeAuxVec(AT_PAGESZ, kPageSize);
-  // TODO(amb): these are kernel clock ticks via sysconf(_SC_CLK_TCK)
-  std::get<2>(*vec) = MakeAuxVec(AT_CLKTCK, 1000000);
+  // Guest times() tick rate; must match usys_times() / kClockTicksPerSecond.
+  std::get<2>(*vec) = MakeAuxVec(AT_CLKTCK, kClockTicksPerSecond);
   std::get<3>(*vec) = MakeAuxVec(AT_PHDR, edata.phdr_addr);
   std::get<4>(*vec) = MakeAuxVec(AT_PHENT, edata.phdr_entsz);
   std::get<5>(*vec) = MakeAuxVec(AT_PHNUM, edata.phdr_num);

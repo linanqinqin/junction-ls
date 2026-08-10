@@ -32,11 +32,15 @@ long usys_clock_getres([[maybe_unused]] clockid_t clockid,
 }
 
 long usys_times(struct tms *buf) {
+  // Must use the same tick rate advertised to guests via AT_CLKTCK.
+  // Host sysconf(_SC_CLK_TCK) is typically 100 and must not be used here.
   buf->tms_stime = 0;
   buf->tms_cutime = buf->tms_cstime = 0;
-  buf->tms_utime = myproc().GetRuntime().Seconds() *
-                   static_cast<double>(sysconf(_SC_CLK_TCK));
-  return 0;
+  buf->tms_utime =
+      static_cast<clock_t>(myproc().GetRuntime().Microseconds());
+  // POSIX: return elapsed real time in clock ticks since an arbitrary point.
+  // With kClockTicksPerSecond == 1e6, microtime() is already in tick units.
+  return static_cast<long>(microtime());
 }
 
 long usys_clock_gettime(clockid_t clockid, struct timespec *tp) {
